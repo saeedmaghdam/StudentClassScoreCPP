@@ -1,0 +1,755 @@
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1033{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\colortbl ;\red255\green0\blue0;}
+{\*\generator Riched20 10.0.19041}\viewkind4\uc1 
+\pard\sa200\sl276\slmult1\cf1\b\f0\fs22\lang9 Main\par
+\cf0\b0 #include <iostream>\par
+\par
+#include "Sa/Helper/UI.h"\par
+\par
+/* run this program using the console pauser or add your own getch, system("pause") or input loop */\par
+int main(int argc, char** argv) \{\par
+\tab Sa::Helper::UI ui;\par
+\tab\par
+\tab ui.Initialize();\par
+\tab\par
+\tab return 0;\par
+\}\par
+\par
+\par
+\cf1\b Helper/File\par
+\cf0\b0 #ifndef Helper_File\par
+#define Helper_File\par
+\par
+#include <fstream>\par
+#include <iostream>\par
+#include <string>\par
+#include <vector>\par
+\par
+using namespace std;\par
+\par
+namespace Sa\{\par
+\tab namespace Helper\{\par
+\tab\tab class File\{\par
+\tab\tab\tab public:\par
+\tab\tab\tab\tab File(string fileName)\{\par
+\tab\tab\tab\tab\tab _fileName = fileName;\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\par
+\tab\tab\tab\tab void Append(string line)\{\par
+\tab\tab\tab\tab\tab fstream appendFileToWorkWith;\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab appendFileToWorkWith.open(_fileName.c_str(), ios::in | ios::out | ios::app);\par
+\par
+\tab\tab\tab       \tab // If file does not exist, Create new file\par
+\tab\tab\tab       \tab if (!appendFileToWorkWith) \par
+\tab\tab\tab       \tab\{\par
+\tab\tab\tab         \tab appendFileToWorkWith.open(_fileName.c_str(),  fstream::in | fstream::out | fstream::trunc);\par
+\tab\tab\tab        \tab\tab appendFileToWorkWith << line << endl;\par
+\tab\tab\tab        \tab\tab appendFileToWorkWith.close();\par
+\tab\tab\tab        \tab\} \par
+\tab\tab\tab        \tab else   \par
+\tab\tab\tab        \tab\{\par
+\tab\tab\tab        \tab\tab appendFileToWorkWith << line << endl;\par
+\tab\tab\tab         \tab cout<<"\\n";\par
+\tab\tab\tab         \tab appendFileToWorkWith.close();\par
+\tab\tab\tab         \}\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\par
+\tab\tab\tab\tab vector<string> GetLines()\{\par
+\tab\tab\tab\tab\tab ifstream file(_fileName.c_str());\par
+\tab\tab\tab\tab\tab string line;\par
+\tab\tab\tab\tab\tab vector<string> lines;\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab while(getline(file, line))\par
+\tab\tab\tab\tab\tab\tab lines.push_back(line);\par
+\tab\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab return lines;\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\par
+\tab\tab\tab\tab void Remove()\{\par
+\tab\tab\tab\tab\tab Append("");\par
+\tab\tab\tab\tab\tab remove(_fileName.c_str());\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab private:\par
+\tab\tab\tab\tab string _fileName;\par
+\tab\tab\};\par
+\tab\}\par
+\}\par
+\par
+#endif\par
+\par
+\par
+\cf1\b Helper/String\par
+\cf0\b0 #ifndef Helper_String\par
+#define Helper_String\par
+\par
+#include <string>\par
+#include <vector>\par
+\par
+using namespace std;\par
+\par
+namespace Sa\{\par
+\tab namespace Helper\{\par
+\tab\tab class String\{\par
+\tab\tab\tab public:\par
+\tab\tab\tab\tab vector<string> Split(string input, char seperator)\{\par
+\tab\tab\tab\tab\tab vector<string> parts;\par
+\tab\tab\tab\tab\tab int index = 0;\par
+\tab\tab\tab\tab\tab int count = 0;\par
+\tab\tab\tab\tab\tab for(int i = 0; i < input.length(); i++)\par
+\tab\tab\tab\tab\tab\{\par
+\tab\tab\tab\tab\tab\tab if (input[i] == '|')\{\par
+\tab\tab\tab\tab\tab\tab\tab parts.push_back(input.substr(index, count));\par
+\tab\tab\tab\tab\tab\tab\tab index += count + 1;\par
+\tab\tab\tab\tab\tab\tab\tab count = 0;\par
+\tab\tab\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab\tab\tab continue;\par
+\tab\tab\tab\tab\tab\tab\} \par
+\tab\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab\tab count++;\par
+\tab\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\tab if (index < input.length())\{\par
+\tab\tab\tab\tab\tab\tab parts.push_back(input.substr(index, input.length() - 1));\par
+\tab\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab return parts;\par
+\tab\tab\tab\tab\}\par
+\tab\tab\};\par
+\tab\}\par
+\}\par
+\par
+#endif\par
+\par
+\par
+\cf1\b Helper/UI\par
+\cf0\b0 #ifndef Helper_UI\par
+#define Helper_UI\par
+\par
+#include <iostream>\par
+#include <conio.h>\par
+#include <windows.h>\par
+#include <string>\par
+#include <stdlib.h>\par
+#include "../Model/Student.h"\par
+#include "../Bll/StudentManager.h"\par
+#include "../Bll/CourseManager.h";\par
+#include "../Bll/StudentPointManager.h";\par
+\par
+using namespace std;\par
+\par
+namespace Sa\{\par
+\tab namespace Helper\{\par
+\tab\tab class UI\{\par
+\tab\tab\tab public:\par
+\tab\tab\tab\tab Initialize()\{\par
+\tab\tab\tab\tab\tab MainForm();\par
+\tab\tab\tab\tab\tab HandleMainFormMenu();\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\par
+\tab\tab\tab private:\par
+\tab\tab\tab\tab void MainForm()\{\par
+\tab\tab\tab\tab\tab Clear();\par
+\tab\tab\tab\tab\tab TopMargin();\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab cout << "\\t\\t1) New student" << endl << endl;\par
+\tab\tab\tab\tab\tab cout << "\\t\\t2) New point" << endl << endl;\par
+\tab\tab\tab\tab\tab cout << "\\t\\t3) Report" << endl << endl;\par
+\tab\tab\tab\tab\tab cout << "\\t\\t9) Factory reset (!!!)" << endl << endl;\par
+\tab\tab\tab\tab\tab cout << "\\t\\t0) Exit" << endl << endl;\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\par
+\tab\tab\tab\tab void HandleMainFormMenu()\{\par
+\tab\tab\tab\tab\tab char ch;\par
+\tab\tab\tab\tab\tab do \{\par
+\tab\tab\tab\tab\tab\tab ch = getch(); \par
+\tab\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab\tab switch (ch)\{\par
+\tab\tab\tab\tab\tab\tab\tab case '1':\par
+\tab\tab\tab\tab\tab\tab\tab\tab NewStudentForm();\par
+\tab\tab\tab\tab\tab\tab\tab\tab break;\par
+\tab\tab\tab\tab\tab\tab\tab case '2':\par
+\tab\tab\tab\tab\tab\tab\tab\tab NewStudentPointForm();\par
+\tab\tab\tab\tab\tab\tab\tab\tab break;\par
+\tab\tab\tab\tab\tab\tab\tab case '3':\par
+\tab\tab\tab\tab\tab\tab\tab\tab ReportForm();\par
+\tab\tab\tab\tab\tab\tab\tab\tab break;\par
+\tab\tab\tab\tab\tab\tab\tab case '9':\par
+\tab\tab\tab\tab\tab\tab\tab\tab Sa::Helper::File file = Sa::Helper::File("student");\par
+\tab\tab\tab\tab\tab\tab\tab\tab file.Remove();\par
+\tab\tab\tab\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab\tab\tab\tab file = Sa::Helper::File("student_point");\par
+\tab\tab\tab\tab\tab\tab\tab\tab file.Remove();\par
+\tab\tab\tab\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab\tab\tab\tab break;\par
+\tab\tab\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\tab\} while (ch != '0');\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\par
+\tab\tab\tab\tab void NewStudentForm()\{\par
+\tab\tab\tab\tab\tab Sa::Model::Student student;\par
+\tab\tab\tab\tab\tab Sa::Bll::StudentManager studentManager;\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab Clear();\par
+\tab\tab\tab\tab\tab cout << endl << endl << "\\t\\t*** To cancel process, enter -1 ***";\par
+\tab\tab\tab\tab\tab TopMargin();\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab cout << "\\t\\tStudent Id: ";\par
+\tab\tab\tab\tab\tab cin >> student.Id;\par
+\tab\tab\tab\tab\tab cout << endl << endl;\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab if (student.Id == "-1")\{\par
+\tab\tab\tab\tab\tab\tab MainForm();\par
+\tab\tab\tab\tab\tab\tab return;\par
+\tab\tab\tab\tab\tab\}\tab\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab if (studentManager.IsDuplicate(student))\{\par
+\tab\tab\tab\tab\tab\tab cout << "\\t\\tStudent id exists. try again ...";\par
+\tab\tab\tab\tab\tab\tab getch();\par
+\tab\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab\tab MainForm();\par
+\tab\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab\tab return;\par
+\tab\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab cout << "\\t\\tFull name: ";\par
+\tab\tab\tab\tab\tab cin >> student.Name;\par
+\tab\tab\tab\tab\tab cout << endl << endl;\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab if (student.Name == "-1")\{\par
+\tab\tab\tab\tab\tab\tab MainForm();\par
+\tab\tab\tab\tab\tab\tab return;\par
+\tab\tab\tab\tab\tab\}\tab\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab Clear();\par
+\tab\tab\tab\tab\tab TopMargin();\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab studentManager.Insert(student);\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab cout << "\\t\\tStudent inserted successfully!";\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab getch();\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab MainForm();\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\par
+\tab\tab\tab\tab void CourseSelectMenu()\{\par
+\tab\tab\tab\tab\tab Sa::Bll::CourseManager courseManager;\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab Clear();\par
+\tab\tab\tab\tab\tab TopMargin();\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab cout << "\\t\\tSelect course: " << endl << endl;\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab vector<Sa::Model::Course> courses = courseManager.Get();\par
+\tab\tab\tab\tab\tab for (int i = 0; i < courses.size(); i++)\par
+\tab\tab\tab\tab\tab\tab cout << "\\t\\t" << courses[i].Id << ") " << courses[i].Name << endl << endl;\par
+\tab\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab cout << "\\t\\t0) Cancel";\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\par
+\tab\tab\tab\tab void NewStudentPointForm()\{\par
+\tab\tab\tab\tab\tab Sa::Bll::CourseManager courseManager;\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab CourseSelectMenu();\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab char ch;\par
+\tab\tab\tab\tab\tab do \{\par
+\tab\tab\tab\tab\tab\tab ch = getch(); \par
+\tab\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab\tab string courseId(1, ch);\par
+\tab\tab\tab\tab\tab\tab if (courseManager.IsValid(courseId))\{\par
+\tab\tab\tab\tab\tab\tab\tab NewStudentPointStep2Form(courseId);\par
+\tab\tab\tab\tab\tab\tab\tab break;\par
+\tab\tab\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\tab\} while (ch != '0');\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab MainForm();\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\par
+\tab\tab\tab\tab void NewStudentPointStep2Form(string courseId)\{\par
+\tab\tab\tab\tab\tab Sa::Bll::CourseManager courseManager;\par
+\tab\tab\tab\tab\tab Sa::Bll::StudentManager studentManager;\par
+\tab\tab\tab\tab\tab Sa::Bll::StudentPointManager studentPointManager;\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab do\{\par
+\tab\tab\tab\tab\tab\tab string studentId;\par
+\tab\tab\tab\tab\tab\tab string point;\par
+\tab\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab\tab Clear();\par
+\tab\tab\tab\tab\tab\tab cout << endl << endl << "\\t\\t*** To cancel process, enter -1 ***";\par
+\tab\tab\tab\tab\tab\tab TopMargin();\par
+\tab\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab\tab cout << "\\t\\tStudent Id: ";\par
+\tab\tab\tab\tab\tab\tab cin >> studentId;\par
+\tab\tab\tab\tab\tab\tab if (studentId == "-1")\par
+\tab\tab\tab\tab\tab\tab\tab break;\par
+\tab\tab\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab\tab Sa::Model::StudentPoint studentPoint;\par
+\tab\tab\tab\tab\tab\tab studentPoint.CourseId = courseId;\par
+\tab\tab\tab\tab\tab\tab studentPoint.StudentId = studentId;\par
+\tab\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab\tab if (studentPointManager.IsDuplicate(studentPoint))\{\par
+\tab\tab\tab\tab\tab\tab\tab cout << "\\t\\tYou've entered point to this student id before.";\par
+\tab\tab\tab\tab\tab\tab\tab getch();\par
+\tab\tab\tab\tab\tab\tab\tab continue;\par
+\tab\tab\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab\tab if (!studentManager.IsValid(studentId))\{\par
+\tab\tab\tab\tab\tab\tab\tab cout << "\\t\\tStudent id is not valid! Try again ..." << endl;\par
+\tab\tab\tab\tab\tab\tab\tab getch();\par
+\tab\tab\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab\tab\tab continue;\par
+\tab\tab\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab\tab Sa::Model::Student student = studentManager.GetById(studentId);\par
+\tab\tab\tab\tab\tab\tab cout << "\\t\\t" << student.Name << endl << endl << "\\t\\tPoint: ";\par
+\tab\tab\tab\tab\tab\tab cin >> point;\par
+\tab\tab\tab\tab\tab\tab if (studentId == "-1")\par
+\tab\tab\tab\tab\tab\tab\tab break;\par
+\tab\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab\tab Clear();\par
+\tab\tab\tab\tab\tab\tab TopMargin();\par
+\tab\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab\tab studentPoint.Point = point;\par
+\tab\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab\tab studentPointManager.Insert(studentPoint);\par
+\tab\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab\tab cout << "\\t\\tPoint inserted successfully! try another one ...";\par
+\tab\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab\tab getch();\par
+\tab\tab\tab\tab\tab\} while (true);\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\par
+\tab\tab\tab\tab void ReportForm()\{\par
+\tab\tab\tab\tab\tab Sa::Bll::CourseManager courseManager;\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab CourseSelectMenu();\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab char ch;\par
+\tab\tab\tab\tab\tab do \{\par
+\tab\tab\tab\tab\tab\tab ch = getch(); \par
+\tab\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab\tab string courseId(1, ch);\par
+\tab\tab\tab\tab\tab\tab if (courseManager.IsValid(courseId))\{\par
+\tab\tab\tab\tab\tab\tab\tab ReportStep2Form(courseId);\par
+\tab\tab\tab\tab\tab\tab\tab break;\par
+\tab\tab\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\tab\} while (ch != '0');\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab MainForm();\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\par
+\tab\tab\tab\tab void ReportStep2Form(string courseId)\{\par
+\tab\tab\tab\tab\tab Sa::Bll::CourseManager courseManager;\par
+\tab\tab\tab\tab\tab Sa::Bll::StudentManager studentManager;\par
+\tab\tab\tab\tab\tab Sa::Bll::StudentPointManager studentPointManager;\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab Clear();\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab cout << "=========================================================" << endl;\par
+\tab\tab\tab\tab\tab cout << courseManager.GetById(courseId).Name << endl;\par
+\tab\tab\tab\tab\tab cout << "=========================================================" << endl;\par
+\tab\tab\tab\tab\tab gotoxy(0, 3);\par
+\tab\tab\tab\tab\tab cout << "Student Id";\par
+\tab\tab\tab\tab\tab gotoxy(20, 3);\par
+\tab\tab\tab\tab\tab cout << "Full name";\par
+\tab\tab\tab\tab\tab gotoxy(40, 3);\par
+\tab\tab\tab\tab\tab cout << "Point";\par
+\tab\tab\tab\tab\tab gotoxy(0, 4);\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab vector<Sa::Model::StudentPoint> studentPoints = studentPointManager.Get();\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab double passedSum = 0;\par
+\tab\tab\tab\tab\tab double notPassedSum = 0;\par
+\tab\tab\tab\tab\tab int passedCount = 0;\par
+\tab\tab\tab\tab\tab int notPassedCount = 0;\par
+\tab\tab\tab\tab\tab for(int i = 0; i < studentPoints.size(); i++)\{\par
+\tab\tab\tab\tab\tab\tab Sa::Model::StudentPoint studentPoint = studentPoints[i];\par
+\tab\tab\tab\tab\tab\tab Sa::Model::Course course = courseManager.GetById(studentPoint.CourseId);\par
+\tab\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab\tab if (course.Id != courseId)\par
+\tab\tab\tab\tab\tab\tab\tab continue;\par
+\tab\tab\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab\tab Sa::Model::Student student = studentManager.GetById(studentPoint.StudentId);\par
+\tab\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab\tab gotoxy(0, 4 + i);\par
+\tab\tab\tab\tab\tab\tab cout << student.Id;\par
+\tab\tab\tab\tab\tab\tab gotoxy(20, 4 + i);\par
+\tab\tab\tab\tab\tab\tab cout << student.Name;\par
+\tab\tab\tab\tab\tab\tab gotoxy(40, 4 + i);\par
+\tab\tab\tab\tab\tab\tab cout << studentPoint.Point;\par
+\tab\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab\tab double doublePoint;\par
+\tab\tab\tab\tab\tab     sscanf ( studentPoint.Point.c_str(), "%lf" , &doublePoint);\par
+\tab\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab\tab if (doublePoint > 12)\{\par
+\tab\tab\tab\tab\tab\tab\tab passedSum += doublePoint;\par
+\tab\tab\tab\tab\tab\tab\tab passedCount++;\par
+\tab\tab\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\tab\tab else\{\par
+\tab\tab\tab\tab\tab\tab\tab notPassedSum += doublePoint;\par
+\tab\tab\tab\tab\tab\tab\tab notPassedCount++;\par
+\tab\tab\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab if (studentPoints.size() > 0)\{\par
+\tab\tab\tab\tab\tab\tab cout << endl << "=========================================================" << endl;\par
+\tab\tab\tab\tab\tab\tab if (passedCount > 0)\par
+\tab\tab\tab\tab\tab\tab\tab cout << "Passed average: " << passedSum / passedCount << endl;\par
+\tab\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab\tab if (notPassedCount > 0)\par
+\tab\tab\tab\tab\tab\tab\tab cout << "Not passed average: " << notPassedSum / notPassedCount << endl;\par
+\tab\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab getch();\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab MainForm();\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\par
+\tab\tab\tab\tab void TopMargin()\{\par
+\tab\tab\tab\tab\tab cout << endl << endl << endl << endl << endl << endl;\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\par
+\tab\tab\tab\tab void Clear()\par
+\tab\tab\tab\tab\{\par
+\tab\tab\tab\tab #if defined _WIN32\par
+\tab\tab\tab\tab     system("cls");\par
+\tab\tab\tab\tab     //clrscr(); // including header file : conio.h\par
+\tab\tab\tab\tab #elif defined (__LINUX__) || defined(__gnu_linux__) || defined(__linux__)\par
+\tab\tab\tab\tab     system("clear");\par
+\tab\tab\tab\tab     //std::cout<< u8"\\033[2J\\033[1;1H"; //Using ANSI Escape Sequences \par
+\tab\tab\tab\tab #elif defined (__APPLE__)\par
+\tab\tab\tab\tab     system("clear");\par
+\tab\tab\tab\tab #endif\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\par
+\tab\tab\tab\tab void gotoxy( int column, int line )\par
+\tab\tab\tab\tab\{\par
+\tab\tab\tab\tab\tab COORD coord;\par
+\tab\tab\tab\tab\tab coord.X = column;\par
+\tab\tab\tab\tab\tab coord.Y = line;\par
+\tab\tab\tab\tab\tab SetConsoleCursorPosition(\par
+\tab\tab\tab\tab   \tab\tab GetStdHandle( STD_OUTPUT_HANDLE ),\par
+\tab\tab\tab\tab   \tab\tab coord\par
+\tab\tab\tab\tab\tab );\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\par
+\tab\tab\tab\tab int wherex()\par
+\tab\tab\tab\tab\{\par
+\tab\tab\tab\tab\tab CONSOLE_SCREEN_BUFFER_INFO csbi;\par
+\tab\tab\tab\tab   \tab if (!GetConsoleScreenBufferInfo(GetStdHandle( STD_OUTPUT_HANDLE ),&csbi))\par
+\tab\tab\tab\tab     \tab return -1;\par
+\tab\tab\tab\tab   \tab return csbi.dwCursorPosition.X;\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\par
+\tab\tab\tab\tab int wherey()\par
+\tab\tab\tab\tab\{\par
+\tab\tab\tab\tab\tab CONSOLE_SCREEN_BUFFER_INFO csbi;\par
+\tab\tab\tab\tab   \tab if (!GetConsoleScreenBufferInfo(GetStdHandle( STD_OUTPUT_HANDLE ), &csbi))\par
+\tab\tab\tab\tab     \tab return -1;\par
+\tab\tab\tab\tab   \tab return csbi.dwCursorPosition.Y;\par
+\tab\tab\tab\tab\}\par
+\tab\tab\};\par
+\tab\}\par
+\}\par
+\par
+#endif\par
+\par
+\par
+\cf1\b Model/Course\par
+\cf0\b0 #ifndef Model_Course\par
+#define Model_Course\par
+\par
+#include <string>\par
+\par
+using namespace std;\par
+\par
+namespace Sa\{\par
+\tab namespace Model\{\par
+\tab\tab struct Course \{\par
+\tab\tab\tab string Id;\par
+\tab\tab\tab string Name;\par
+\tab\tab\tab\par
+\tab\tab\tab Course()\{\par
+\tab\tab\tab\tab Id = "";\par
+\tab\tab\tab\tab Name = "";\par
+\tab\tab\tab\}\par
+\tab\tab\};\par
+\tab\}\par
+\}\par
+\par
+#endif\par
+\par
+\par
+\cf1\b Model/Student\par
+\cf0\b0 #ifndef Model_Student\par
+#define Model_Student\par
+\par
+#include <string>\par
+\par
+using namespace std;\par
+\par
+namespace Sa\{\par
+\tab namespace Model\{\par
+\tab\tab struct Student\{\par
+\tab\tab\tab string Id;\par
+\tab\tab\tab string Name;\par
+\tab\tab\tab\par
+\tab\tab\tab Student()\{\par
+\tab\tab\tab\tab Id = "";\par
+\tab\tab\tab\tab Name = "";\par
+\tab\tab\tab\}\par
+\tab\tab\};\par
+\tab\}\par
+\}\par
+\par
+#endif\par
+\par
+\par
+\cf1\b Model/StudentPoint\par
+\cf0\b0 #ifndef Model_StudentPoint\par
+#define Model_StudentPoint\par
+\par
+#include <string>\par
+\par
+using namespace std;\par
+\par
+namespace Sa\{\par
+\tab namespace Model\{\par
+\tab\tab struct StudentPoint \{\par
+\tab\tab\tab string CourseId;\par
+\tab\tab\tab string StudentId;\par
+\tab\tab\tab string Point;\par
+\tab\tab\tab\par
+\tab\tab\tab StudentPoint()\{\par
+\tab\tab\tab\tab CourseId = "";\par
+\tab\tab\tab\tab StudentId = "";\par
+\tab\tab\tab\tab Point = "";\par
+\tab\tab\tab\}\par
+\tab\tab\};\par
+\tab\}\par
+\}\par
+\par
+#endif\par
+\par
+\par
+\par
+\cf1\b Bll/CourseManager\par
+\cf0\b0 #ifndef Bll_CourseManager\par
+#define Bll_CourseManager\par
+\par
+#include "../Model/Course.h"\par
+\par
+namespace Sa\{\par
+\tab namespace Bll\{\par
+\tab\tab class CourseManager\{\par
+\tab\tab\tab public:\par
+\tab\tab\tab\tab vector<Sa::Model::Course> Get()\{\par
+\tab\tab\tab\tab\tab vector<Sa::Model::Course> result;\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab Sa::Model::Course c1;\par
+\tab\tab\tab\tab\tab c1.Id = "1";\par
+\tab\tab\tab\tab\tab c1.Name = "Math";\par
+\tab\tab\tab\tab\tab result.push_back(c1);\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab c1.Id = "2";\par
+\tab\tab\tab\tab\tab c1.Name = "Algorithms";\par
+\tab\tab\tab\tab\tab result.push_back(c1);\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab c1.Id = "3";\par
+\tab\tab\tab\tab\tab c1.Name = "Data Structure";\par
+\tab\tab\tab\tab\tab result.push_back(c1);\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab c1.Id = "4";\par
+\tab\tab\tab\tab\tab c1.Name = "Statistics";\par
+\tab\tab\tab\tab\tab result.push_back(c1);\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab return result;\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\par
+\tab\tab\tab\tab Sa::Model::Course GetById(string courseId)\{\par
+\tab\tab\tab\tab\tab Sa::Model::Course result;\par
+\tab\tab\tab\tab\tab vector<Sa::Model::Course> courses = Get();\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab for(int i = 0; i < courses.size(); i++)\{\par
+\tab\tab\tab\tab\tab\tab if (courses[i].Id == courseId)\par
+\tab\tab\tab\tab\tab\tab\{\par
+\tab\tab\tab\tab\tab\tab\tab result = courses[i];\par
+\tab\tab\tab\tab\tab\tab\tab break;\par
+\tab\tab\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab return result;\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\par
+\tab\tab\tab\tab bool IsValid(string courseId)\{\par
+\tab\tab\tab\tab\tab Sa::Model::Course course = GetById(courseId);\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab if (course.Id == "")\par
+\tab\tab\tab\tab\tab\tab return false;\par
+\tab\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab return true;\par
+\tab\tab\tab\tab\}\par
+\tab\tab\};\par
+\tab\}\par
+\}\par
+\par
+#endif\par
+\par
+\par
+\par
+\cf1\b Bll/StudentManager\par
+\cf0\b0 #ifndef Bll_StudentManager\par
+#define Bll_StudentManager\par
+\par
+#include "../Model/Student.h"\par
+#include "../Helper/File.h"\par
+#include "../Helper/String.h"\par
+#include <vector>\par
+\par
+namespace Sa\{\par
+\tab namespace Bll\{\par
+\tab\tab class StudentManager\{\par
+\tab\tab\tab public:\tab\tab\tab\tab\par
+\tab\tab\tab\tab void Insert(Sa::Model::Student student)\{\par
+\tab\tab\tab\tab\tab Sa::Helper::File db = Sa::Helper::File(dbName);\tab\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab db.Append(string(student.Id) + "|" + string(student.Name));\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab vector<Sa::Model::Student> Get()\{\par
+\tab\tab\tab\tab\tab Sa::Helper::File db = Sa::Helper::File(dbName);\tab\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab vector<Sa::Model::Student> result;\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab vector<string> lines = db.GetLines();\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab for(int i = 0; i < lines.size(); i++)\par
+\tab\tab\tab\tab\tab\{\par
+\tab\tab\tab\tab\tab\tab Sa::Helper::String stringHelper;\par
+\tab\tab\tab\tab\tab\tab Sa::Model::Student student;\par
+\tab\tab\tab\tab\tab\tab string line = lines[i];\par
+\tab\tab\tab\tab\tab\tab vector<string> parts = stringHelper.Split(line, '|');\par
+\tab\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab\tab student.Id = parts[0];\par
+\tab\tab\tab\tab\tab\tab student.Name = parts[1];\par
+\tab\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab\tab result.push_back(student);\par
+\tab\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab return result;\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\par
+\tab\tab\tab\tab Sa::Model::Student GetById(string studentId)\{\par
+\tab\tab\tab\tab\tab Sa::Model::Student result;\par
+\tab\tab\tab\tab\tab vector<Sa::Model::Student> students = Get();\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab for(int i = 0; i < students.size(); i++)\{\par
+\tab\tab\tab\tab\tab\tab if (students[i].Id == studentId)\par
+\tab\tab\tab\tab\tab\tab\{\par
+\tab\tab\tab\tab\tab\tab\tab result = students[i];\par
+\tab\tab\tab\tab\tab\tab\tab break;\par
+\tab\tab\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab return result;\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\par
+\tab\tab\tab\tab bool IsValid(string studentId)\{\par
+\tab\tab\tab\tab\tab Sa::Model::Student student = GetById(studentId);\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab if (student.Id == "")\par
+\tab\tab\tab\tab\tab\tab return false;\par
+\tab\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab return true;\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\par
+\tab\tab\tab\tab bool IsDuplicate(Sa::Model::Student student)\{\par
+\tab\tab\tab\tab\tab vector<Sa::Model::Student> students = Get();\par
+\tab\tab\tab\tab\tab bool isDuplicate = false;\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab for(int i = 0; i < students.size(); i++)\{\par
+\tab\tab\tab\tab\tab\tab if (student.Id.compare(students[i].Id) == 0)\{\par
+\tab\tab\tab\tab\tab\tab\tab isDuplicate = true;\par
+\tab\tab\tab\tab\tab\tab\tab break;\par
+\tab\tab\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab return isDuplicate;\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab private:\par
+\tab\tab\tab\tab const string dbName = "student";\par
+\tab\tab\};\par
+\tab\}\par
+\}\par
+\par
+#endif\par
+\par
+\par
+\par
+\cf1\b Bll/StudentPointManager\par
+\cf0\b0 #ifndef Bll_StudentPointManager\par
+#define Bll_StudentPointManager\par
+\par
+#include <string>\par
+#include "../Model/StudentPoint.h"\par
+\par
+using namespace std;\par
+\par
+namespace Sa\{\par
+\tab namespace Bll\{\par
+\tab\tab class StudentPointManager\{\par
+\tab\tab\tab public:\par
+\tab\tab\tab\tab void Insert(Sa::Model::StudentPoint studentPoint)\{\par
+\tab\tab\tab\tab\tab Sa::Helper::File db = Sa::Helper::File(dbName);\tab\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab db.Append(string(studentPoint.CourseId) + "|" + string(studentPoint.StudentId) + "|" + studentPoint.Point);\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\par
+\tab\tab\tab\tab vector<Sa::Model::StudentPoint> Get()\{\par
+\tab\tab\tab\tab\tab Sa::Helper::File db = Sa::Helper::File(dbName);\tab\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab vector<Sa::Model::StudentPoint> result;\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab vector<string> lines = db.GetLines();\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab for(int i = 0; i < lines.size(); i++)\par
+\tab\tab\tab\tab\tab\{\par
+\tab\tab\tab\tab\tab\tab Sa::Helper::String stringHelper;\par
+\tab\tab\tab\tab\tab\tab Sa::Model::StudentPoint studentPoint;\par
+\tab\tab\tab\tab\tab\tab string line = lines[i];\par
+\tab\tab\tab\tab\tab\tab vector<string> parts = stringHelper.Split(line, '|');\par
+\tab\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab\tab studentPoint.CourseId = parts[0];\par
+\tab\tab\tab\tab\tab\tab studentPoint.StudentId = parts[1];\par
+\tab\tab\tab\tab\tab\tab studentPoint.Point = parts[2];\par
+\tab\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab\tab result.push_back(studentPoint);\par
+\tab\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab return result;\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\par
+\tab\tab\tab\tab bool IsDuplicate(Sa::Model::StudentPoint studentPoint)\{\par
+\tab\tab\tab\tab\tab vector<Sa::Model::StudentPoint> studentPoints = Get();\par
+\tab\tab\tab\tab\tab bool isDuplicate = false;\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab for(int i = 0; i < studentPoints.size(); i++)\{\par
+\tab\tab\tab\tab\tab\tab if (studentPoint.CourseId.compare(studentPoints[i].CourseId) == 0 && studentPoint.StudentId.compare(studentPoints[i].StudentId) == 0)\{\par
+\tab\tab\tab\tab\tab\tab\tab isDuplicate = true;\par
+\tab\tab\tab\tab\tab\tab\tab break;\par
+\tab\tab\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\tab\par
+\tab\tab\tab\tab\tab return isDuplicate;\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\par
+\tab\tab\tab private:\par
+\tab\tab\tab\tab const string dbName = "student_point";\par
+\tab\tab\};\par
+\tab\}\par
+\}\par
+\par
+#endif\par
+}
+ 
